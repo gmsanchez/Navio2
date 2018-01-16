@@ -60,7 +60,7 @@ int main(int argc, char *argv[]){
                 // after desired message is successfully decoded, we can use the information stored in pos_data vector
                 // right here, or we can do something with it from inside decodeSingleMessage() function(see ublox.h).
                 // the way, data is stored in pos_data vector is specified in decodeMessage() function of class UBXParser(see ublox.h)
-                printf("GPS Millisecond Time of Week: %.0lf s\n", pos_data[0]/1000);
+                printf("GPS Millisecond Time of Week: %.0lf s\n", pos_data[0]);
                 printf("Longitude: %lf\n", pos_data[1]/10000000);
                 printf("Latitude: %lf\n", pos_data[2]/10000000);
                 printf("Height above Ellipsoid: %.3lf m\n", pos_data[3]/1000);

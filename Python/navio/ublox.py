@@ -937,6 +937,12 @@ class UBlox:
         (ck_a, ck_b) = msg.checksum(msg._buf[2:])
         msg._buf += struct.pack('<BB', ck_a, ck_b)
         self.send(msg)
+        
+        unpacked_msg = []
+        for i in xrange(msg.msg_length() + 8):
+            unpacked_msg.append( hex(struct.unpack('<B', msg._buf[i])[0]) )
+        print unpacked_msg
+        
 
     def configure_solution_rate(self, rate_ms=200, nav_rate=1, timeref=0):
         '''configure the solution rate in milliseconds'''

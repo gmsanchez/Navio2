@@ -282,11 +282,54 @@ Ublox::Ublox(std::string name, UBXScanner* scan, UBXParser* pars) : spi_device_n
 
 int Ublox::enableNAV_POSLLH()
 {
-    unsigned char gps_nav_posllh[] = {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x02, 0x01, 0x0E, 0x47};
+    int i,j;
+    unsigned char gps_message_rate[11][11] = {{0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x12, 0x00, 0x1d, 0x66},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x30, 0x00, 0x3b, 0xa2},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x11, 0x00, 0x1c, 0x64},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x01, 0x00, 0x0c, 0x44},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x02, 0x10, 0x00, 0x1c, 0x65},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x02, 0x11, 0x00, 0x1d, 0x67},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x02, 0x20, 0x00, 0x2c, 0x85},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x02, 0x30, 0x00, 0x3c, 0xa5},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x02, 0x31, 0x00, 0x3d, 0xa7},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x20, 0x00, 0x2b, 0x82},
+                                          {0xb5, 0x62, 0x06, 0x01, 0x03, 0x00, 0x01, 0x22, 0x00, 0x2d, 0x86}};
+
+
+    for (i=0;i<11;i++)
+    {
+/*    for (j=0;j<11<j++)
+    {
+    unsigned char gps_nav_posllh[11] = gps_message_rate[i][j]
+    }
+    int gps_nav_posllh_length = (sizeof(gps_nav_posllh)/sizeof(*gps_nav_posllh));*/
+    unsigned char gps_nav_posllh[11];
+    for (j=0;j<11;j++) {
+        gps_nav_posllh[j] = gps_message_rate[i][j];
+    }
     int gps_nav_posllh_length = (sizeof(gps_nav_posllh)/sizeof(*gps_nav_posllh));
     unsigned char from_gps_data_nav[gps_nav_posllh_length];
 
-    return SPIdev::transfer(spi_device_name.c_str(), gps_nav_posllh, from_gps_data_nav, gps_nav_posllh_length, 200000);
+    if (SPIdev::transfer(spi_device_name.c_str(), gps_nav_posllh, from_gps_data_nav, gps_nav_posllh_length, 200000) < 0)
+    {
+        std::cerr << "Could not configure ublox over SPI\n";
+        return 1;
+    }
+
+
+    }
+
+    unsigned char gps_solution_rate[] = {0xb5, 0x62, 0x06, 0x08, 0x06, 0x00, 0x64, 0x00, 0x01, 0x00, 0x00, 0x00, 0x79, 0x10};
+    int gps_solution_rate_length = (sizeof(gps_solution_rate)/sizeof(*gps_solution_rate));
+    unsigned char from_gps_data_solution_rate[gps_solution_rate_length];
+
+    if (SPIdev::transfer(spi_device_name.c_str(), gps_solution_rate, from_gps_data_solution_rate, gps_solution_rate_length, 200000) < 0)
+    {
+        std::cerr << "Could not configure ublox over SPI\n";
+        return 1;
+    }
+
+   return 0;
 }
 
 int Ublox::enableNAV_STATUS()
@@ -311,10 +354,10 @@ int Ublox::testConnection()
         std::cerr << "Could not configure ublox over SPI\n";
     }
 
-    if (enableNAV_STATUS()<0)
-    {
-        std::cerr << "Could not configure ublox over SPI\n";
-    }
+    // if (enableNAV_STATUS()<0)
+    // {
+    //     std::cerr << "Could not configure ublox over SPI\n";
+    // }
 
     while (count < buffer_length/2)
     {
